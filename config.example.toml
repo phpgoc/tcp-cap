@@ -1,0 +1,19 @@
+#server一般一个集群是相同的
+[server]
+type = 'redis'
+ip = '10.211.1.52'
+port = 6379
+#设备名称和ip输入一个就可以
+[device]
+name = ""
+ip = ""
+#db 数组，可以配置多个机器
+[[db]]
+type = 'mysql'
+port = 3306
+[[db]]
+type = 'postgre'
+port = 5432
+[[db]]
+type = 'oracle'
+port = 1521
