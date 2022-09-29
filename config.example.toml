@@ -1,9 +1,13 @@
-#server一般一个集群是相同的
+# 一个集群 server一般是相同的
 [server]
-type = 'redis'
-ip = '10.211.1.52'
-port = 6379
-#设备名称和ip输入一个就可以
+#type = 'redis'
+#ip = 'localhost'
+#port = 6379
+type = 'nats'
+ip = 'localhost'
+port = 4231
+#设备名称和ip输入有一个就可以
+#每个网卡一个配置文件
 [device]
 name = ""
 ip = ""

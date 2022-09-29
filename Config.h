@@ -16,6 +16,10 @@ public:
     void debug();
     Config();
     void set_config(char *str);
+    const std::string &getMServerType() const;
+    const std::string &getMServerIp() const;
+    int getMServerPort() const;
+    const std::unordered_map<int, std::string> &getMDbs() const;
 
 private:
     std::string m_server_type;

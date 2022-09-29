@@ -84,3 +84,15 @@ void Config::debug() {
         cout << "DB port: " << v.first << " DB type: " << v.second << endl;
     }
 }
+const string &Config::getMServerType() const {
+    return m_server_type;
+}
+const string &Config::getMServerIp() const {
+    return m_server_ip;
+}
+int Config::getMServerPort() const {
+    return m_server_port;
+}
+const unordered_map<int, std::string> &Config::getMDbs() const {
+    return m_dbs;
+}
