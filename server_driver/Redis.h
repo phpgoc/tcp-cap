@@ -17,7 +17,7 @@ namespace server_drvier {
         void pull_loop(void (*handle)(const std::string &)) override;
 
     private:
-        sw::redis::Redis *m_client = nullptr;
+        sw::redis::Redis *m_p_client = nullptr;
     };
 
 }// namespace server_drvier

@@ -15,11 +15,11 @@ namespace server_drvier {
         void pull_loop(void (*handle)(const std::string &)) override;
 
     private:
-        natsConnection *conn;
-        natsStatus status;
-        jsCtx *m_js;
-        natsOptions *m_opts;
-        jsOptions *m_jsOpts;
+        natsConnection *m_conn;
+        natsStatus m_status;
+        jsCtx *m_p_js;
+        natsOptions *m_p_opts;
+        jsOptions *m_p_jsOpts;
     };
 
 }// namespace server_drvier

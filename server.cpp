@@ -10,21 +10,21 @@ using namespace std;
 
 void handle(const string &b) {
     //    cout << "handle: " << b << endl;
-    char *p = const_cast<char *>(b.data());
-    int *dataLen = (int *) p;
-    p += sizeof(int);
-    timespec *time = (timespec *) p;
-    p += sizeof(timespec);
-    const uint8_t *data = (const uint8_t *) p;
+    char *ptr = const_cast<char *>(b.data());
+    int *dataLen = (int *) ptr;
+    ptr += sizeof(int);
+    timespec *time = (timespec *) ptr;
+    ptr += sizeof(timespec);
+    const uint8_t *data = (const uint8_t *) ptr;
     pcpp::RawPacket packet{data, *dataLen, *time, false};
     pcpp::Packet parsedPacket(&packet);
     cout << parsedPacket.toString() << endl;
 }
 
 int main(int argc, char *argv[]) {
-    ServerConfig c;
-    c.debug();
-    server_drvier::Base *server = server_drvier::get_server_instance(c.getMServerType(), c.getMServerIp(), c.getMServerPort());
+    ServerConfig config;
+    config.debug();
+    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort());
     auto safe_quit_process = [](int) {
         printf("safe quit");
     };
