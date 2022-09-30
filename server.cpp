@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
     auto safe_quit_process = [](int) {
         printf("safe quit");
+        exit(0);
     };
     signal(SIGTERM, safe_quit_process);
     signal(SIGINT, safe_quit_process);
