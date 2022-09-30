@@ -3,34 +3,12 @@
 //
 
 #include "Config.h"
+#include "tools.h"
 #include <iostream>
 #include <toml++/toml.h>
 using namespace std;
-string config_file = "Config.toml";
-static inline void check_server_type_valid(const string &server_type) {
-    if (server_type.empty()) {
-        cerr << "Parsing failed:" << config_file << ":server.type is invalid"
-             << "\n";
-        exit(1);
-    }
-}
+string config_file = "config.toml";
 
-static inline void check_server_ip_valid(const string *server_type) {
-
-    if (server_type->empty()) {
-        cerr << "Parsing failed:" << config_file << ":server.ip is invalid"
-             << "\n";
-        exit(1);
-    }
-}
-
-static inline void check_server_port_valid(int server_port) {
-    if (0 == server_port) {
-        cerr << "Parsing failed: " << config_file << ":server.port is invalid"
-             << "\n";
-        exit(1);
-    }
-}
 
 Config::Config() {
 }
@@ -47,12 +25,12 @@ void Config::set_config(char *str) {
         exit(1);
     }
     // server segment
-    m_server_type = config["server"]["type"].value_or("");
-    check_server_type_valid(m_server_type);
-    m_server_ip = config["server"]["ip"].value_or("");
-    check_server_ip_valid(&m_server_ip);
-    m_server_port = config["server"]["port"].value_or(0);
-    check_server_port_valid(m_server_port);
+    m_server_type = config["message_server"]["type"].value_or("");
+    check_server_type_valid(config_file, m_server_type);
+    m_server_ip = config["message_server"]["ip"].value_or("");
+    check_server_ip_valid(config_file, &m_server_ip);
+    m_server_port = config["message_server"]["port"].value_or(0);
+    check_server_port_valid(config_file, m_server_port);
 
     // device segment
     string device_ip = config["device"]["ip"].value_or("");

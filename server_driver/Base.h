@@ -10,6 +10,7 @@ namespace server_drvier {
     class Base {
     public:
         virtual void push(const std::string &b) = 0;
+        virtual void pull_loop(void (*handle)(const std::string &)) = 0;
         virtual ~Base() {}
     };
 }// namespace server_drvier

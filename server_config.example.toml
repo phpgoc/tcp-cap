@@ -1,0 +1,5 @@
+[message_server]
+type = 'nats'
+ip = 'localhost'
+port = 4231
+[db]

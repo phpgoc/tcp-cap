@@ -11,14 +11,13 @@ static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, 
     // parsed the raw packet
     pcpp::Packet parsedPacket(packet);
     cout << parsedPacket.toString() << endl;
-    //    server->push(parsedPacket.toString());
-    //todo convert packet to byte which can be send to server
     char *b = (char *) malloc(sizeof(int) + sizeof(timespec) + parsedPacket.getRawPacket()->getRawDataLen());
-
     char *p = b;
-    *((int *) p) = packet->getRawDataLen();
+    int *i = (int *) p;
+    *i = packet->getRawDataLen();
     p += sizeof(int);
-    *((timespec *) p) = packet->getPacketTimeStamp();
+    timespec *time = (timespec *) p;
+    *time = packet->getPacketTimeStamp();
     p += sizeof(timespec);
     memcpy(p, packet, packet->getRawDataLen());
     server->push(string(b, sizeof(int) + sizeof(timespec) + packet->getRawDataLen()));

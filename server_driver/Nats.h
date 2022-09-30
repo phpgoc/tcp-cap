@@ -12,6 +12,7 @@ namespace server_drvier {
         Nats(const std::string &ip, int port);
         ~Nats();
         void push(const std::string &b) override;
+        void pull_loop(void (*handle)(const std::string &)) override;
 
     private:
         natsConnection *conn;

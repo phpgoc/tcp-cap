@@ -32,3 +32,23 @@ void server_drvier::Nats::push(const std::string &b) {
     //    status = js_PublishAsync(m_js, "message", (const void *) b.data(), b.size(), NULL);
     natsConnection_Publish(conn, "message", (const void *) b.c_str(), b.size());
 }
+
+void server_drvier::Nats::pull_loop(void (*handle)(const std::string &)) {
+    natsSubscription *sub;
+    natsMsg *msg;
+    natsStatus s;
+    //    s = natsConnection_Subscribe(&sub, conn, "message", NULL);
+    //    if (s != NATS_OK) {
+    //        cerr << "Nats Subscribe failed " << endl;
+    //        exit(1);
+    //    }
+    //    while (true) {
+    //        s = natsSubscription_NextMsg(&msg, sub);
+    //        if (s != NATS_OK) {
+    //            cerr << "Nats Subscribe failed " << endl;
+    //            continue;
+    //        }
+    //        handle(natsMsg_GetData(msg));
+    //        natsMsg_Destroy(msg);
+    //    }
+}

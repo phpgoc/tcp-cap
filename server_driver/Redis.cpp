@@ -3,7 +3,7 @@
 //
 
 #include "Redis.h"
-#include <string>
+#include <iostream>
 using namespace std;
 server_drvier::Redis::Redis(const string &ip, int port) {
     string url = "tcp://" + string(ip) + ":" + to_string(port);
@@ -11,7 +11,7 @@ server_drvier::Redis::Redis(const string &ip, int port) {
     connection_options.keep_alive = true;
     connection_options.connect_timeout = std::chrono::milliseconds(100);
     sw::redis::ConnectionPoolOptions pool_options;
-    
+
     pool_options.wait_timeout = std::chrono::milliseconds(1);
     m_client = new sw::redis::Redis(connection_options, pool_options);
 }
@@ -20,4 +20,13 @@ server_drvier::Redis::~Redis() {
 }
 void server_drvier::Redis::push(const string &b) {
     m_client->lpush("message", b);
+}
+void server_drvier::Redis::pull_loop(void (*handle)(const string &)) {
+    while (true) {
+
+        auto result = m_client->brpop("message", 0);
+        if (result) {
+            handle(result.value().second);
+        }
+    }
 }
