@@ -5,7 +5,7 @@
 #ifndef VCPKG_1_NATS_H
 #define VCPKG_1_NATS_H
 #include "Base.h"
-#include <nats.h>
+#include <nats/nats.h>
 namespace server_drvier {
     class Nats : public Base {
     public:
@@ -16,7 +16,9 @@ namespace server_drvier {
     private:
         natsConnection *conn;
         natsStatus status;
-        jsCtx *js;
+        jsCtx *m_js;
+        natsOptions *m_opts;
+        jsOptions *m_jsOpts;
     };
 
 }// namespace server_drvier
