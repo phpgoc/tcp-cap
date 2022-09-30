@@ -19,7 +19,7 @@ static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, 
     timespec *time = (timespec *) p;
     *time = packet->getPacketTimeStamp();
     p += sizeof(timespec);
-    memcpy(p, packet, packet->getRawDataLen());
+    memcpy(p, packet->getRawData(), packet->getRawDataLen());
     server->push(string(b, sizeof(int) + sizeof(timespec) + packet->getRawDataLen()));
     free(b);
 }
