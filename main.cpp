@@ -10,7 +10,7 @@ static void onPacketArrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, 
     server_drvier::Base *server = (server_drvier::Base *) cookie;
     // parsed the raw packet
     pcpp::Packet parsedPacket(packet);
-    //    cout << parsedPacket.toString() << endl;
+    cout << parsedPacket.toString() << endl;
     //    server->push(parsedPacket.toString());
     //todo convert packet to byte which can be send to server
     char *b = (char *) malloc(sizeof(int) + sizeof(timespec) + parsedPacket.getRawPacket()->getRawDataLen());

@@ -28,6 +28,7 @@ server_drvier::Nats::~Nats() {
 }
 
 void server_drvier::Nats::push(const std::string &b) {
-    status = js_PublishAsync(m_js, "message", (const void *) b.c_str(), b.size(), NULL);
-    //    natsConnection_Publish(conn, "message", (const void *) b.c_str(), b.size());
+
+    //    status = js_PublishAsync(m_js, "message", (const void *) b.data(), b.size(), NULL);
+    natsConnection_Publish(conn, "message", (const void *) b.c_str(), b.size());
 }
