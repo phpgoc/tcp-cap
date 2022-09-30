@@ -7,7 +7,7 @@
 #include "Base.h"
 #include <string>
 namespace server_drvier {
-    server_drvier::Base *get_server_instance(const std::string &type, const std::string &ip, int port);
+    Base *get_server_instance(const std::string &type, const std::string &ip, int port, const std::string &message_queue);
 }// namespace server_drvier
 
 

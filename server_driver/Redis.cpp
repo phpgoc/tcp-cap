@@ -5,7 +5,7 @@
 #include "Redis.h"
 #include <iostream>
 using namespace std;
-server_drvier::Redis::Redis(const string &ip, int port) {
+server_drvier::Redis::Redis(const string &ip, int port, std::string message_queue) : Base(message_queue) {
     string url = "tcp://" + string(ip) + ":" + to_string(port);
     sw::redis::ConnectionOptions connection_options(url);
     connection_options.keep_alive = true;
@@ -19,12 +19,12 @@ server_drvier::Redis::~Redis() {
     delete m_p_client;
 }
 void server_drvier::Redis::push(const string &b) {
-    m_p_client->lpush("message", b);
+    m_p_client->lpush(this->getMessageQueue(), b);
 }
 void server_drvier::Redis::pull_loop(void (*handle)(const string &)) {
     while (true) {
 
-        auto result = m_p_client->brpop("message", 0);
+        auto result = m_p_client->brpop(this->getMessageQueue(), 0);
         if (result) {
             handle(result.value().second);
         }

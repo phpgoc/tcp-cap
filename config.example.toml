@@ -6,6 +6,7 @@
 type = 'nats'
 ip = 'localhost'
 port = 4231
+queue = 'message'
 #设备名称和ip输入有一个就可以
 #每个网卡一个配置文件
 [device]

@@ -7,18 +7,17 @@
 #include <iostream>
 #include <toml++/toml.h>
 using namespace std;
-string config_file = "config.toml";
 
 
 Config::Config() {
 }
 void Config::set_config(char *str) {
     if (str != nullptr) {
-        config_file = str;
+        m_config_file = str;
     }
     toml::table config;
     try {
-        config = toml::parse_file(config_file);
+        config = toml::parse_file(m_config_file);
     } catch (const toml::parse_error &err) {
         cerr << "Parsing failed:\n"
              << err << "\n";
@@ -26,12 +25,13 @@ void Config::set_config(char *str) {
     }
     // server segment
     m_server_type = config["message_server"]["type"].value_or("");
-    check_server_type_valid(config_file, m_server_type);
+    check_server_type_valid(m_config_file, m_server_type);
     m_server_ip = config["message_server"]["ip"].value_or("");
-    check_server_ip_valid(config_file, &m_server_ip);
+    check_server_ip_valid(m_config_file, &m_server_ip);
     m_server_port = config["message_server"]["port"].value_or(0);
-    check_server_port_valid(config_file, m_server_port);
-
+    check_server_port_valid(m_config_file, m_server_port);
+    m_message_queue = config["message_server"]["queue"].value_or("");
+    check_server_queue_valid(m_config_file, m_message_queue);
     // device segment
     string device_ip = config["device"]["ip"].value_or("");
     string device_name = config["device"]["name"].value_or("");
@@ -56,21 +56,21 @@ void Config::set_config(char *str) {
     if (auto dbs = config["db"]; dbs) {
         for (auto &db : *dbs.as_array()) {
             if (!db.as_table()->contains("port") || !db.as_table()->contains("type")) {
-                cerr << "Parsing failed:" << config_file << ":db.port or db.type is invalid"
+                cerr << "Parsing failed:" << m_config_file << ":db.port or db.type is invalid"
                      << "\n";
                 exit(1);
             }
             auto type = db.as_table()->at("type").value<string>();
             auto port = db.as_table()->at("port").value<int>();
             if (m_dbs.contains(*port)) {
-                cerr << "Parsing failed:" << config_file << ":db.port is duplicate"
+                cerr << "Parsing failed:" << m_config_file << ":db.port is duplicate"
                      << "\n";
                 exit(1);
             }
             m_dbs[*port] = *type;
         }
     } else {
-        cerr << "Parsing failed: " << config_file << ": The db array segment must exist";
+        cerr << "Parsing failed: " << m_config_file << ": The db array segment must exist";
         exit(1);
     }
 }
@@ -98,4 +98,7 @@ const unordered_map<int, std::string> &Config::getMDbs() const {
 }
 pcpp::PcapLiveDevice *Config::getMDevice() const {
     return m_device;
+}
+const string &Config::getMMessageQueue() const {
+    return m_message_queue;
 }

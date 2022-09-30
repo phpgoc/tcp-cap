@@ -9,7 +9,7 @@
 namespace server_drvier {
     class Nats : public Base {
     public:
-        Nats(const std::string &ip, int port);
+        Nats(const std::string &ip, int port, std::string message_queue);
         ~Nats();
         void push(const std::string &b) override;
         void pull_loop(void (*handle)(const std::string &)) override;

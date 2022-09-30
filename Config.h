@@ -22,11 +22,14 @@ public:
     int getMServerPort() const;
     const std::unordered_map<int, std::string> &getMDbs() const;
     pcpp::PcapLiveDevice *getMDevice() const;
+    const std::string &getMMessageQueue() const;
 
 private:
+    std::string m_config_file = "config.toml";
     std::string m_server_type;
     std::string m_server_ip;
     int m_server_port;
+    std::string m_message_queue;
     std::unordered_map<int, std::string> m_dbs;
     pcpp::PcapLiveDevice *m_device;
 };

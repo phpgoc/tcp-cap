@@ -29,4 +29,12 @@ static inline void check_server_port_valid(const std::string &config_file, int s
         exit(1);
     }
 }
+
+static inline void check_server_queue_valid(const std::string &config_file, const std::string &server_queue) {
+    if (server_queue.empty()) {
+        std::cerr << "Parsing failed: " << config_file << ":server.queue is invalid"
+                  << "\n";
+        exit(1);
+    }
+}
 #endif//VCPKG_1_TOOLS_H

@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         config.set_config(nullptr);
     }
     config.debug();
-    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort());
+    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
     pcpp::OrFilter or_filter;
     vector<void *> filterPointersForDeletion;
     for (auto i : config.getMDbs()) {

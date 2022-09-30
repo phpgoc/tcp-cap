@@ -11,7 +11,7 @@ namespace server_drvier {
 
     class Redis : public Base {
     public:
-        Redis(const std::string &ip, int port);
+        Redis(const std::string &ip, int port, std::string message_queue);
         ~Redis();
         void push(const std::string &b) override;
         void pull_loop(void (*handle)(const std::string &)) override;

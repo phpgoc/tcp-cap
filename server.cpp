@@ -23,8 +23,17 @@ void handle(const string &b) {
 
 int main(int argc, char *argv[]) {
     ServerConfig config;
+    if (argc > 1) {
+        if (string(argv[1]) == "-h") {
+            printf("help");
+            return 0;
+        }
+        config.set_config(argv[1]);
+    } else {
+        config.set_config(nullptr);
+    }
     config.debug();
-    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort());
+    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
     auto safe_quit_process = [](int) {
         printf("safe quit");
     };

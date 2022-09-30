@@ -2,4 +2,5 @@
 type = 'nats'
 ip = 'localhost'
 port = 4231
+queue = 'message'
 [db]

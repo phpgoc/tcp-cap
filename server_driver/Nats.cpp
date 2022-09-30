@@ -5,7 +5,7 @@
 #include "Nats.h"
 #include <iostream>
 using namespace std;
-server_drvier::Nats::Nats(const std::string &ip, int port) {
+server_drvier::Nats::Nats(const std::string &ip, int port, std::string message_queue) : Base(message_queue) {
 
     string url = "nats://" + ip + ":" + to_string(port);
     natsOptions_SetServers(m_p_opts, (const char **) &url, 10);
@@ -37,6 +37,7 @@ void server_drvier::Nats::pull_loop(void (*handle)(const std::string &)) {
     natsSubscription *sub;
     natsMsg *msg;
     natsStatus s;
+
     //    s = natsConnection_Subscribe(&sub, m_conn, "message", NULL);
     //    if (s != NATS_OK) {
     //        cerr << "Nats Subscribe failed " << endl;
