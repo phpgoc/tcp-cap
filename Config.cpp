@@ -40,16 +40,16 @@ void Config::set_config(char *str) {
              << "\n";
         exit(1);
     }
-    m_device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+    mp_device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
             device_ip);
-    if (!m_device) {
-        m_device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(device_name);
+    if (!mp_device) {
+        mp_device = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(device_name);
     }
-    if (!m_device) {
+    if (!mp_device) {
         cerr << "Wrong device config";
         exit(1);
     }
-    if (!m_device->open()) {
+    if (!mp_device->open()) {
         std::cerr << "Cannot open device" << std::endl;
         exit(1);
     }
@@ -78,10 +78,14 @@ void Config::set_config(char *str) {
 void Config::debug() {
     cout << "Server IP: " << m_server_ip << endl
          << "Server type: " << m_server_type << endl
-         << "Server port: " << m_server_port << endl;
-
-    for (auto v : m_dbs) {
-        cout << "DB port: " << v.first << " DB type: " << v.second << endl;
+         << "Server port: " << m_server_port << endl
+         << "Device name: " << mp_device->getName() << endl
+         << "Device IP: " << mp_device->getIPv4Address().toString() << endl
+         << "Server IP: " << m_server_ip << endl
+         << "Server type: " << m_server_type << endl
+         << "message_queue: " << m_message_queue << endl;
+    for (auto db : m_dbs) {
+        cout << "DB port: " << db.first << " DB type: " << db.second << endl;
     }
 }
 const string &Config::getMServerType() const {
@@ -97,7 +101,7 @@ const unordered_map<int, std::string> &Config::getMDbs() const {
     return m_dbs;
 }
 pcpp::PcapLiveDevice *Config::getMDevice() const {
-    return m_device;
+    return mp_device;
 }
 const string &Config::getMMessageQueue() const {
     return m_message_queue;

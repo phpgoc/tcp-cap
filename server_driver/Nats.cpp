@@ -8,28 +8,28 @@ using namespace std;
 server_drvier::Nats::Nats(const std::string &ip, int port, std::string message_queue) : Base(message_queue) {
 
     string url = "nats://" + ip + ":" + to_string(port);
-    natsOptions_SetServers(m_p_opts, (const char **) &url, 10);
-    m_status = natsConnection_Connect(&m_conn, m_p_opts);
+    natsOptions_SetServers(mp_opts, (const char **) &url, 10);
+    m_status = natsConnection_Connect(&m_conn, mp_opts);
     if (m_status != NATS_OK) {
         cerr << "Nats Connetion failed " << endl;
         exit(1);
     }
 
-    jsOptions_Init(m_p_jsOpts);
-    m_status = natsConnection_JetStream(&m_p_js, m_conn, m_p_jsOpts);
+    jsOptions_Init(mp_jsOpts);
+    m_status = natsConnection_JetStream(&mp_js, m_conn, mp_jsOpts);
 }
 server_drvier::Nats::~Nats() {
-    if (m_p_js)
-        delete m_p_js;
-    if (m_p_jsOpts)
-        delete m_p_jsOpts;
-    if (m_p_jsOpts)
-        delete m_p_opts;
+    if (mp_js)
+        delete mp_js;
+    if (mp_jsOpts)
+        delete mp_jsOpts;
+    if (mp_jsOpts)
+        delete mp_opts;
 }
 
 void server_drvier::Nats::push(const std::string &b) {
 
-    //    m_status = js_PublishAsync(m_p_js, "message", (const void *) b.data(), b.size(), NULL);
+    //    m_status = js_PublishAsync(mp_js, "message", (const void *) b.data(), b.size(), NULL);
     natsConnection_Publish(m_conn, "message", (const void *) b.c_str(), b.size());
 }
 

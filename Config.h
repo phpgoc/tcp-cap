@@ -31,7 +31,7 @@ private:
     int m_server_port;
     std::string m_message_queue;
     std::unordered_map<int, std::string> m_dbs;
-    pcpp::PcapLiveDevice *m_device;
+    pcpp::PcapLiveDevice *mp_device;
 };
 
 

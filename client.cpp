@@ -5,6 +5,9 @@
 using namespace std;
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
+
+static bool shouldStop = false;
+
 static void on_packet_arrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, void *cookie) {
     // extract the stats object form the cookie
     server_drvier::Base *server = (server_drvier::Base *) cookie;
@@ -52,17 +55,23 @@ int main(int argc, char *argv[]) {
 
     config.getMDevice()->setFilter(and_filter);
     config.getMDevice()->startCapture(on_packet_arrives, server);
+
     auto safe_quit_process = [](int) {
-        //        config.getMDevice()->stopCapture();
-        //        for (auto i : filterPointersForDeletion) {
-        //            delete (pcpp::PortFilter *) i;
-        //        }
-        //        delete server;
-        printf("safe quit");
+        shouldStop = true;
     };
     signal(SIGTERM, safe_quit_process);
     signal(SIGINT, safe_quit_process);
-    pcpp::multiPlatformSleep(2147483647);
+
+    while (!shouldStop) {
+        pcpp::multiPlatformSleep(1);
+    }
+    config.getMDevice()->stopCapture();
+    config.getMDevice()->close();
+    for (auto i : filterPointersForDeletion) {
+        delete (pcpp::PortFilter *) i;
+    }
+    delete server;
+    std::cout << "quit" << std::endl;
 
     return 0;
 }
