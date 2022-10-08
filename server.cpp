@@ -5,6 +5,9 @@
 #include "ServerConfig.h"
 #include "SystemUtils.h"
 #include "server_driver/Factory.h"
+#include "IPv4Layer.h"
+#include "Packet.h"
+#include "tcp_reassembly/Reassembly.h"
 #include <iostream>
 using namespace std;
 
@@ -18,7 +21,15 @@ void handle(const string &b) {
     const uint8_t *data = (const uint8_t *) ptr;
     pcpp::RawPacket packet{data, *dataLen, *time, false};
     pcpp::Packet parsedPacket(&packet);
-    cout << parsedPacket.toString() << endl;
+    pcpp::IPv4Layer *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+    pcpp::IPAddress dstIP = ipLayer->getDstIPAddress();
+    auto tcp_reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(dstIP);
+    if(tcp_reassembly == tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().end()) {
+        tcp_reassembly::Reassembly::getInstance()->add_2_tcp_reassembly_map(dstIP);
+        tcp_reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(dstIP);
+    }
+    tcp_reassembly->second.reassemblePacket(&packet);
+//    cout << parsedPacket.toString() << endl;
 }
 
 int main(int argc, char *argv[]) {
