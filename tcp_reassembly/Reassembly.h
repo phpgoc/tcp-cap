@@ -4,18 +4,36 @@
 
 #ifndef DATA_INGEST_REASSEMBLY_H
 #define DATA_INGEST_REASSEMBLY_H
-#include "TcpReassembly.h"
 #include "AssemblyData.h"
+#include "TcpReassembly.h"
 #include <iostream>
 
 namespace tcp_reassembly {
     class Reassembly {
     public:
         static Reassembly *getInstance();
+        static pcpp::TcpReassembly *getGlobalTcpReassembly();
         ~Reassembly();
+        /**
+         * 由于多个TcpAssembly对象，组包失败，这个方法暂时不用
+         * @return
+         */
         void add_2_tcp_reassembly_map(const pcpp::IPAddress &ip);
+        /**
+         * 由于多个TcpAssembly对象，组包失败，这个方法暂时不用，使用getGlobalTcpReassembly
+         * @return
+         */
         std::map<pcpp::IPAddress, pcpp::TcpReassembly> &getMTcpReassemblyMap();
-        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &getMFlowMap();
+        /**
+         * 由于多个TcpAssembly对象，组包失败，这个方法暂时不用，使用getGlobalTcpReassembly
+         * @return
+         */
+        std::map<uint16_t, AssemblyData> &getMFlowMap();
+        /**
+         * 由于多个TcpAssembly对象，组包失败，这个方法暂时不用，使用getGlobalTcpReassembly
+         * @return
+         */
+        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &getMMutiFlowMap();
         inline void incr_start_count() {
             m_start_count++;
         }
@@ -30,7 +48,8 @@ namespace tcp_reassembly {
         int m_start_count;
         int m_end_count;
         std::map<pcpp::IPAddress, pcpp::TcpReassembly> m_tcp_reassembly_map;
-        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> m_flow_map;
+        std::map<uint16_t, AssemblyData> m_flow_map;
+        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> m_muti_flow_map;
     };
 }// namespace tcp_reassembly
 

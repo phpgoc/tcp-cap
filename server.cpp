@@ -20,15 +20,8 @@ void handle(const string &b) {
     ptr += sizeof(timespec);
     const uint8_t *data = (const uint8_t *) ptr;
     pcpp::RawPacket packet{data, *dataLen, *time, false};
-    pcpp::Packet parsedPacket(&packet);
-    pcpp::IPv4Layer *ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-    pcpp::IPAddress dstIP = ipLayer->getDstIPAddress();
-    auto tcp_reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(dstIP);
-    if(tcp_reassembly == tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().end()) {
-        tcp_reassembly::Reassembly::getInstance()->add_2_tcp_reassembly_map(dstIP);
-        tcp_reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(dstIP);
-    }
-    tcp_reassembly->second.reassemblePacket(&packet);
+//    pcpp::Packet parsedPacket(&packet);
+    tcp_reassembly::Reassembly::getGlobalTcpReassembly()->reassemblePacket(&packet);
 //    cout << parsedPacket.toString() << endl;
 }
 
