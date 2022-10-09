@@ -9,6 +9,8 @@
 #include <iostream>
 
 namespace tcp_reassembly {
+
+
     class Reassembly {
     public:
         static Reassembly *getInstance();
@@ -34,6 +36,8 @@ namespace tcp_reassembly {
          * @return
          */
         std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &getMMutiFlowMap();
+        std::string* get_data_string_pointer_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey);
+        bool earse_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey);
         inline void incr_start_count() {
             m_start_count++;
         }
@@ -50,6 +54,20 @@ namespace tcp_reassembly {
         std::map<pcpp::IPAddress, pcpp::TcpReassembly> m_tcp_reassembly_map;
         std::map<uint16_t, AssemblyData> m_flow_map;
         std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> m_muti_flow_map;
+    };
+
+    class ReassemblyDataInDevice {
+    public:
+        ReassemblyDataInDevice( Reassembly* global_reassembly,  pcpp::IPAddress ip);
+
+        Reassembly *getMpGlobalReassembly() const;
+        void setMpGlobalReassembly(Reassembly *mpGlobalReassembly);
+        const pcpp::IPAddress &getMDeviceIp() const;
+        void setMDeviceIp(const pcpp::IPAddress &mDeviceIp);
+
+    private:
+        Reassembly* mp_global_reassembly;
+        pcpp::IPAddress m_device_ip;
     };
 }// namespace tcp_reassembly
 

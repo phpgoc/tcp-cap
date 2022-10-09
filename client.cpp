@@ -7,6 +7,7 @@ using namespace std;
 #include "SystemUtils.h"
 
 static bool shouldStop = false;
+Config config;
 
 static void on_packet_arrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, void *cookie) {
     // extract the stats object form the cookie
@@ -14,7 +15,7 @@ static void on_packet_arrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev
     // parsed the raw packet
     pcpp::Packet parsedPacket(packet);
     cout << parsedPacket.toString() << endl;
-    char *base_ptr = (char *) malloc(sizeof(int) + sizeof(timespec) + packet->getRawDataLen());
+    char *base_ptr = (char *) malloc(sizeof(int) + sizeof(timespec) + sizeof(pcpp::IPAddress) + packet->getRawDataLen());
     char *ptr = base_ptr;
     int *pInt = (int *) ptr;
     *pInt = packet->getRawDataLen();
@@ -22,12 +23,14 @@ static void on_packet_arrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev
     timespec *time = (timespec *) ptr;
     *time = packet->getPacketTimeStamp();
     ptr += sizeof(timespec);
+    pcpp::IPAddress *srcIP = (pcpp::IPAddress *) ptr;
+    *srcIP = pcpp::IPAddress{config.getMDevice()->getIPv4Address()};
+    ptr += sizeof(pcpp::IPAddress);
     memcpy(ptr, packet->getRawData(), packet->getRawDataLen());
-    server->push(string(base_ptr, sizeof(int) + sizeof(timespec) + packet->getRawDataLen()));
+    server->push(string(base_ptr, sizeof(int) + sizeof(timespec) + sizeof(pcpp::IPAddress) + packet->getRawDataLen()));
     free(base_ptr);
 }
 int main(int argc, char *argv[]) {
-    Config config;
     if (argc > 1) {
         if (string(argv[1]) == "-h") {
             printf("help");

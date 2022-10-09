@@ -1,12 +1,12 @@
 //
 // Created by 杨殿擎 on 2022/9/30.
 //
+#include "IPv4Layer.h"
+#include "Packet.h"
 #include "PcapLiveDeviceList.h"
 #include "ServerConfig.h"
 #include "SystemUtils.h"
 #include "server_driver/Factory.h"
-#include "IPv4Layer.h"
-#include "Packet.h"
 #include "tcp_reassembly/Reassembly.h"
 #include <iostream>
 using namespace std;
@@ -18,11 +18,20 @@ void handle(const string &b) {
     ptr += sizeof(int);
     timespec *time = (timespec *) ptr;
     ptr += sizeof(timespec);
+    pcpp::IPAddress *devIP = (pcpp::IPAddress *) ptr;
+    ptr += sizeof(pcpp::IPAddress);
     const uint8_t *data = (const uint8_t *) ptr;
     pcpp::RawPacket packet{data, *dataLen, *time, false};
-//    pcpp::Packet parsedPacket(&packet);
-    tcp_reassembly::Reassembly::getGlobalTcpReassembly()->reassemblePacket(&packet);
-//    cout << parsedPacket.toString() << endl;
+    auto reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(*devIP);
+    if (reassembly == tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().end()) {
+        tcp_reassembly::Reassembly::getInstance()->add_2_tcp_reassembly_map(*devIP);
+        reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(*devIP);
+    }
+    reassembly->second.reassemblePacket(&packet);
+    //    tcp_reassembly::Reassembly::getGlobalTcpReassembly()->reassemblePacket(&packet);
+    //    pcpp::Packet parsedPacket(&packet);
+
+    //    cout << parsedPacket.toString() << endl;
 }
 
 int main(int argc, char *argv[]) {
