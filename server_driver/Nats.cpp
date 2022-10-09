@@ -33,7 +33,7 @@ void server_drvier::Nats::push(const std::string &b) {
     natsConnection_Publish(m_conn, "message", (const void *) b.c_str(), b.size());
 }
 
-void server_drvier::Nats::pull_loop(void (*handle)(const std::string &)) {
+void server_drvier::Nats::pull_loop(void (*handle)(const std::string &), bool *stop) {
     natsSubscription *sub;
     natsMsg *msg;
     natsStatus s;

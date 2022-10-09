@@ -21,10 +21,9 @@ server_drvier::Redis::~Redis() {
 void server_drvier::Redis::push(const string &b) {
     mp_client->lpush(this->getMessageQueue(), b);
 }
-void server_drvier::Redis::pull_loop(void (*handle)(const string &)) {
-    while (true) {
-
-        auto result = mp_client->brpop(this->getMessageQueue(), 0);
+void server_drvier::Redis::pull_loop(void (*handle)(const string &), bool *stop) {
+    while (!(*stop)) {
+        auto result = mp_client->brpop(this->getMessageQueue(), 10);
         if (result) {
             handle(result.value().second);
         }

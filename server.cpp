@@ -33,7 +33,7 @@ void handle(const string &b) {
 
     //    cout << parsedPacket.toString() << endl;
 }
-
+bool shouldStop = false;
 int main(int argc, char *argv[]) {
     ServerConfig config;
     if (argc > 1) {
@@ -48,11 +48,12 @@ int main(int argc, char *argv[]) {
     config.debug();
     server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
     auto safe_quit_process = [](int) {
-        printf("safe quit");
-        exit(0);
+
+        shouldStop = true;
     };
     signal(SIGTERM, safe_quit_process);
     signal(SIGINT, safe_quit_process);
-    server->pull_loop(handle);
+    server->pull_loop(handle, &shouldStop);
+    printf("safe quit");
     return 0;
 }
