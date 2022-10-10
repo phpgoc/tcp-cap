@@ -5,6 +5,7 @@
 #include "DeleteQueue.h"
 #include "Reassembly.h"
 #include "SystemUtils.h"
+#include "../protocol/Entrance.h"
 #include <sys/time.h>
 #include <thread>
 using namespace std;
@@ -55,6 +56,7 @@ void tcp_reassembly::delete_queue_thread(bool *stop) {
                             //todo handle it->second.getMData()
                             //                            cout << " tcp connection does not close correctly:" <<it->second.getMData() << endl;
                             //                            cout << " delete_queue size:"<<delete_queue.size() << endl;
+                            protocol::Entrance::handle(it->second.getMData());
                             map->erase(it);
                             Reassembly::getInstance()->incr_error_count();
                         }

@@ -56,6 +56,15 @@ int main(int argc, char *argv[]) {
     pcpp::ProtoFilter protocol_filter(pcpp::TCP);
     and_filter.addFilter(&protocol_filter);
 
+    pcpp::BPFStringFilter tls{" (((tcp[((tcp[12] & 0xf0) >> 2)] = 0x14) || (tcp[((tcp[12] & 0xf0) >> 2)] = 0x15) || (tcp[((tcp[12] & 0xf0) >> 2)] = 0x17)) && (tcp[((tcp[12] & 0xf0) >> 2)+1] = 0x03 && (tcp[((tcp[12] & 0xf0) >> 2)+2] < 0x03)))   ||   (tcp[((tcp[12] & 0xf0) >> 2)] = 0x16) && (tcp[((tcp[12] & 0xf0) >> 2)+1] = 0x03) && (tcp[((tcp[12] & 0xf0) >> 2)+9] = 0x03) && (tcp[((tcp[12] & 0xf0) >> 2)+10] < 0x03)    ||    (((tcp[((tcp[12] & 0xf0) >> 2)] < 0x14) || (tcp[((tcp[12] & 0xf0) >> 2)] > 0x18)) && (tcp[((tcp[12] & 0xf0) >> 2)+3] = 0x00) && (tcp[((tcp[12] & 0xf0) >> 2)+4] = 0x02))"};
+    pcpp::NotFilter not_tls(&tls);
+    //todo 上边写的tls过滤器有问题,并不成立，还没找到可以过滤tls包的bpf写法
+//    and_filter.addFilter(&not_tls);
+    string filterAsString;
+    and_filter.parseToString(filterAsString);
+    cout << "filterAsString: " << filterAsString << endl;
+
+//    return 0;
     config.getMDevice()->setFilter(and_filter);
     config.getMDevice()->startCapture(on_packet_arrives, server);
 

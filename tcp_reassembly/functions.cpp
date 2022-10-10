@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "DeleteQueue.h"
 #include "Reassembly.h"
+#include "../protocol/Entrance.h"
 using namespace std;
 void tcp_reassembly::msgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData &tcpData, void *userCookie) {
     tcp_reassembly::ReassemblyDataInDevice *global_cookie = (tcp_reassembly::ReassemblyDataInDevice *) userCookie;
@@ -70,6 +71,7 @@ void tcp_reassembly::connectionEndCallback(const pcpp::ConnectionData &connectio
     cout << "start count: " << global_cookie->getMpGlobalReassembly()->getMStartCount() << endl;
     cout << "end count: " << global_cookie->getMpGlobalReassembly()->getMEndCount() << endl;
     cout << "error count: " << global_cookie->getMpGlobalReassembly()->getMErrorCount() << endl;
+    protocol::Entrance::handle((global_cookie->getMpGlobalReassembly()->get_data_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(),connectionData.flowKey))->getMData());
     //todo handle string
     //    cout << *(global_cookie->getMpGlobalReassembly()->get_data_string_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(),connectionData.flowKey)) << std::endl;
     global_cookie->getMpGlobalReassembly()->earse_from_muti_flow_map(global_cookie->getMDeviceIp(), connectionData.flowKey);
