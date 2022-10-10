@@ -1,18 +1,23 @@
-# 消息队列后端的配置, 一个集群, server一般是相同的
-[server]
+# 消息队列后端的配置, 一个集群, server一般是相同的 ，需要消息队列已启动
+[message_server]
 #type = 'redis'
 #ip = 'localhost'
 #port = 6379
+# 消息队列类型 目前支持 redis nats
 type = 'nats'
+# 消息队列的ip or host
 ip = 'localhost'
+# 消息队列的端口
 port = 4231
+# 消息队列的队列名称
 queue = 'message'
+
 #设备名称和ip输入有一个就可以
 #每个网卡一个配置文件
 [device]
 name = ""
 ip = ""
-#db 数组，可以配置多个数据库，port不可重复，port上如果无数据库无害
+#db 数组，可以配置多个数据库，port不可重复，port如果无效没有害处
 [[db]]
 type = 'mysql'
 port = 3306

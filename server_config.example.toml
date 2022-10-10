@@ -1,6 +1,11 @@
+# 消息队列后端的配置，需要消息队列已启动
 [message_server]
+
+# 消息队列类型 目前支持 redis nats
 type = 'nats'
+# 消息队列的ip or host
 ip = 'localhost'
+# 消息队列的端口
 port = 4231
+# 消息队列的队列名称
 queue = 'message'
-[db]
