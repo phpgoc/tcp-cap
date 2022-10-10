@@ -3,11 +3,12 @@
 //
 
 #include "functions.h"
+#include "DeleteQueue.h"
 #include "Reassembly.h"
 using namespace std;
 void tcp_reassembly::msgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData &tcpData, void *userCookie) {
     tcp_reassembly::ReassemblyDataInDevice *global_cookie = (tcp_reassembly::ReassemblyDataInDevice *) userCookie;
-    if(sideIndex == 1)
+    if (sideIndex == 1)
         return;
     auto assembly_data_iter = global_cookie->getMpGlobalReassembly()->getMMutiFlowMap().find(global_cookie->getMDeviceIp());
     if (assembly_data_iter == global_cookie->getMpGlobalReassembly()->getMMutiFlowMap().end()) {
@@ -15,13 +16,21 @@ void tcp_reassembly::msgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamDat
         exit(1);
     }
 
-    string * data_string = global_cookie->getMpGlobalReassembly()->get_data_string_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(),tcpData.getConnectionData().flowKey);
+    AssemblyData *data = global_cookie->getMpGlobalReassembly()->get_data_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(), tcpData.getConnectionData().flowKey);
 
-    if(data_string == nullptr){
-        assembly_data_iter->second.insert(std::make_pair(tcpData.getConnectionData().flowKey, AssemblyData()));
-        cerr << "不该到这里" << endl;
+    if (data == nullptr) {
+        assembly_data_iter->second.insert(std::make_pair(tcpData.getConnectionData().flowKey, AssemblyData(tcpData.getConnectionData().endTime)));
+        cerr << "不该到这里,compatibility_tcp_max_time设置低了，tcp connention 心跳，消息队列阻塞长度，等因数共同决定。" << endl;
+        cerr << "flow key:" << tcpData.getConnectionData().flowKey << endl;
+        data = global_cookie->getMpGlobalReassembly()->get_data_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(), tcpData.getConnectionData().flowKey);
     }
-    data_string-> append((char *) tcpData.getData(), tcpData.getDataLength());
+    if (data->getMEndTime().tv_sec < tcpData.getConnectionData().endTime.tv_sec) {
+        if (0 == data->getMEndTime().tv_sec) {
+            add_2_delete_queue(tcpData.getConnectionData().flowKey, tcpData.getConnectionData().endTime, global_cookie->getMDeviceIp());
+        }
+        data->setMEndTime(tcpData.getConnectionData().endTime);
+    }
+    data->getMData().append((char *) tcpData.getData(), tcpData.getDataLength());
 }
 
 void tcp_reassembly::connectionStartCallback(const pcpp::ConnectionData &connectionData, void *userCookie) {
@@ -36,7 +45,7 @@ void tcp_reassembly::connectionStartCallback(const pcpp::ConnectionData &connect
     }
     auto id2string_iter = assembly_data_iter->second.find(connectionData.flowKey);
     if (id2string_iter == assembly_data_iter->second.end()) {
-        assembly_data_iter->second.insert(std::make_pair(connectionData.flowKey, AssemblyData()));
+        assembly_data_iter->second.insert(std::make_pair(connectionData.flowKey, AssemblyData(connectionData.endTime)));
     }
     global_cookie->getMpGlobalReassembly()->incr_start_count();
 }
@@ -58,6 +67,10 @@ void tcp_reassembly::connectionEndCallback(const pcpp::ConnectionData &connectio
     }
 
     global_cookie->getMpGlobalReassembly()->incr_end_count();
-    cout << *(global_cookie->getMpGlobalReassembly()->get_data_string_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(),connectionData.flowKey)) << std::endl;
+    cout << "start count: " << global_cookie->getMpGlobalReassembly()->getMStartCount() << endl;
+    cout << "end count: " << global_cookie->getMpGlobalReassembly()->getMEndCount() << endl;
+    cout << "error count: " << global_cookie->getMpGlobalReassembly()->getMErrorCount() << endl;
+    //todo handle string
+    //    cout << *(global_cookie->getMpGlobalReassembly()->get_data_string_pointer_from_muti_flow_map(global_cookie->getMDeviceIp(),connectionData.flowKey)) << std::endl;
     global_cookie->getMpGlobalReassembly()->earse_from_muti_flow_map(global_cookie->getMDeviceIp(), connectionData.flowKey);
 }

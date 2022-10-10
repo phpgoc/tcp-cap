@@ -27,16 +27,14 @@ namespace tcp_reassembly {
 
     void Reassembly::add_2_tcp_reassembly_map(const pcpp::IPAddress &ip) {
         m_muti_flow_map.insert(pair(ip, std::map<uint16_t, AssemblyData>{}));
-        ReassemblyDataInDevice* cookie = new ReassemblyDataInDevice{this,ip};
+        ReassemblyDataInDevice *cookie = new ReassemblyDataInDevice{this, ip};
         m_tcp_reassembly_map.insert(std::pair<pcpp::IPAddress, pcpp::TcpReassembly>(ip, pcpp::TcpReassembly(
                                                                                                 msgReadyCallback, cookie, connectionStartCallback, connectionEndCallback)));
     }
     std::map<pcpp::IPAddress, pcpp::TcpReassembly> &Reassembly::getMTcpReassemblyMap() {
         return m_tcp_reassembly_map;
     }
-    std::map<uint16_t, AssemblyData> &Reassembly::getMFlowMap() {
-        return m_flow_map;
-    }
+
     std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &Reassembly::getMMutiFlowMap() {
         return m_muti_flow_map;
     }
@@ -58,20 +56,23 @@ namespace tcp_reassembly {
         }
         return false;
     }
-    std::string* Reassembly::get_data_string_pointer_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey) {
+    AssemblyData *Reassembly::get_data_pointer_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey) {
 
         auto it = m_muti_flow_map.find(ip);
         if (it != m_muti_flow_map.end()) {
             auto it2 = it->second.find(flowKey);
             if (it2 != it->second.end()) {
-                return &it2->second.getMData();
+                return &it2->second;
             }
         }
         return nullptr;
     }
+    std::map<uint16_t, AssemblyData> *Reassembly::getAssemblyDataByIP(pcpp::IPAddress ip) {
+        return &this->getMMutiFlowMap().find(ip)->second;
+    }
 
-    ReassemblyDataInDevice::ReassemblyDataInDevice( Reassembly* global_reassembly,  pcpp::IPAddress ip)
-    {
+
+    ReassemblyDataInDevice::ReassemblyDataInDevice(Reassembly *global_reassembly, pcpp::IPAddress ip) {
         mp_global_reassembly = global_reassembly;
         m_device_ip = ip;
     }
@@ -82,5 +83,7 @@ namespace tcp_reassembly {
     const pcpp::IPAddress &ReassemblyDataInDevice::getMDeviceIp() const {
         return m_device_ip;
     }
-
+    int Reassembly::getMErrorCount() const {
+        return m_error_count;
+    }
 }// namespace tcp_reassembly

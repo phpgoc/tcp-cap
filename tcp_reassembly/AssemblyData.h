@@ -6,23 +6,22 @@
 #define DATA_INGEST_ASSEMBLYDATA_H
 
 #include <string>
-namespace tcp_reassembly{
+namespace tcp_reassembly {
     class AssemblyData {
     public:
-        AssemblyData();
-         std::string &getMData() ;
+        AssemblyData(timeval endTime);
+        std::string &getMData();
         void setMData(const std::string &mData);
-        int getSide() const;
-        void setSide(int side);
+        const timeval &getMEndTime() const;
+        void setMEndTime(const timeval &endTime);
+
 
     private:
-            std::string m_data;
-        int side;
-
+        std::string m_data;
+        timeval m_end_time;
     };
 
-}
-
+}// namespace tcp_reassembly
 
 
 #endif//DATA_INGEST_ASSEMBLYDATA_H

@@ -1,12 +1,10 @@
 //
 // Created by 杨殿擎 on 2022/9/30.
 //
-#include "IPv4Layer.h"
 #include "Packet.h"
-#include "PcapLiveDeviceList.h"
 #include "ServerConfig.h"
-#include "SystemUtils.h"
 #include "server_driver/Factory.h"
+#include "tcp_reassembly/DeleteQueue.h"
 #include "tcp_reassembly/Reassembly.h"
 #include <iostream>
 using namespace std;
@@ -28,9 +26,7 @@ void handle(const string &b) {
         reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(*devIP);
     }
     reassembly->second.reassemblePacket(&packet);
-    //    tcp_reassembly::Reassembly::getGlobalTcpReassembly()->reassemblePacket(&packet);
     //    pcpp::Packet parsedPacket(&packet);
-
     //    cout << parsedPacket.toString() << endl;
 }
 bool shouldStop = false;
@@ -48,12 +44,14 @@ int main(int argc, char *argv[]) {
     config.debug();
     server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
     auto safe_quit_process = [](int) {
-
         shouldStop = true;
     };
     signal(SIGTERM, safe_quit_process);
     signal(SIGINT, safe_quit_process);
+    //todo 可以设定一定延迟再启动 delete_queue ,防止消息队列里堆积的消息满足delete_queue删除条件，直接被删除
+    tcp_reassembly::delete_queue_thread(&shouldStop);
     server->pull_loop(handle, &shouldStop);
+
     printf("safe quit");
     return 0;
 }

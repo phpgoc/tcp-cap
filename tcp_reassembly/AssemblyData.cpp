@@ -3,20 +3,18 @@
 //
 
 #include "AssemblyData.h"
-tcp_reassembly::AssemblyData::AssemblyData() {
-    m_data = "";
-    side = 0;
-}
+tcp_reassembly::AssemblyData::AssemblyData(timeval endTime) : m_end_time(endTime), m_data("") {}
 
- std::string &tcp_reassembly::AssemblyData::getMData()  {
+
+std::string &tcp_reassembly::AssemblyData::getMData() {
     return m_data;
 }
 void tcp_reassembly::AssemblyData::setMData(const std::string &mData) {
     m_data = mData;
 }
-int tcp_reassembly::AssemblyData::getSide() const {
-    return side;
+const timeval &tcp_reassembly::AssemblyData::getMEndTime() const {
+    return m_end_time;
 }
-void tcp_reassembly::AssemblyData::setSide(int side) {
-    AssemblyData::side = side;
+void tcp_reassembly::AssemblyData::setMEndTime(const timeval &endTime) {
+    m_end_time = endTime;
 }
