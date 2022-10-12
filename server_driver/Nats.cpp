@@ -6,11 +6,28 @@
 #include <iostream>
 using namespace std;
 server_drvier::Nats::Nats(const std::string &ip, int port, std::string message_queue) : Base(message_queue) {
-
+    constexpr int MAX_SERVERS= 1;
+    char        *serverUrls[MAX_SERVERS];
     string url = "nats://" + ip + ":" + to_string(port);
-    natsOptions_SetServers(mp_opts, (const char **) &url, 10);
+
+    natsOptions_Create(&mp_opts);
+
+    memset(serverUrls, 0, sizeof(serverUrls));
+    serverUrls[0] = (char *) url.c_str();
+    m_status = natsOptions_SetServers(mp_opts, (const char **) serverUrls, MAX_SERVERS);
+    if ( m_status!= NATS_OK) {
+        nats_PrintLastErrorStack(stderr);
+        exit(1);
+    }
+    m_status = natsOptions_SetReconnectWait(mp_opts, 100);
+    // Instruct the library to block the connect call for that
+    // long until it can get a connection or fails.
+    if (m_status == NATS_OK){
+        m_status = natsOptions_SetRetryOnFailedConnect(mp_opts, true, NULL, NULL);
+    }
     m_status = natsConnection_Connect(&m_conn, mp_opts);
-    if (m_status != NATS_OK) {
+    cout << "nats connect status: " << natsStatus_GetText(m_status) << endl;
+    if (m_status != NATS_OK || natsConnection_IsClosed(m_conn)) {
         cerr << "Nats Connetion failed " << endl;
         exit(1);
     }
@@ -23,7 +40,7 @@ server_drvier::Nats::~Nats() {
         delete mp_js;
     if (mp_jsOpts)
         delete mp_jsOpts;
-    if (mp_jsOpts)
+    if (mp_opts)
         delete mp_opts;
 }
 

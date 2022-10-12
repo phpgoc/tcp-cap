@@ -35,7 +35,7 @@ void Config::set_config(char *str) {
     // device segment
     string device_ip = config["device"]["ip"].value_or("");
     string device_name = config["device"]["name"].value_or("");
-    if (device_ip.empty() && device_ip.empty()) {
+    if (device_ip.empty() && device_name.empty()) {
         cerr << "At least one IP address and one name must be set in the device segment"
              << "\n";
         exit(1);
