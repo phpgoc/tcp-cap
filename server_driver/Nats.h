@@ -17,9 +17,7 @@ namespace server_drvier {
     private:
         natsConnection *m_conn;
         natsStatus m_status;
-        jsCtx *mp_js;
         natsOptions *mp_opts;
-        jsOptions *mp_jsOpts;
     };
 
 }// namespace server_drvier

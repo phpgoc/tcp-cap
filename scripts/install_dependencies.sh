@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
-
-if [ ! -e /tmp/baab259e9d9912ee7e2d6daf05db5829 ]; then
+f1=/tmp/8302baab259e9d9912ee7e2d6daf05db5829
+f2=/tmp/8302baab259e9d9912ee7e2d6daf05db5828
+if [ ! -e $f1 ]; then
   if [ -e /etc/redhat-release ]; then
     echo "RedHat"
     sudo yum install -y cmake gcc-c++ make libtool autoconf automake pkgconfig libsodium-devel bison-devel
@@ -15,9 +16,9 @@ if [ ! -e /tmp/baab259e9d9912ee7e2d6daf05db5829 ]; then
   else
     echo "Unknown"
   fi
-  touch /tmp/baab259e9d9912ee7e2d6daf05db5829
+  touch $f1
 fi
-if [ ! -e /tmp/baab259e9d9912ee7e2d6daf05db5822 ]; then
+if [ ! -e $f2 ]; then
 
   echo "Install dependencies vcpkg..."
   echo "maybe you need do these yourself:"
@@ -35,5 +36,7 @@ if [ ! -e /tmp/baab259e9d9912ee7e2d6daf05db5822 ]; then
 
   vcpkg install cnats
 
-  touch /tmp/baab259e9d9912ee7e2d6daf05db5822
+  vcpkg install libuv
+
+  touch $f2
 fi
