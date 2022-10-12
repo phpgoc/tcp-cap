@@ -10,7 +10,7 @@ if [ ! -e $f1 ]; then
   elif [ -e /etc/debian_version ]; then
     echo "Debian"
     sudo apt-get install -y cmake g++ make ninja-build libtool autoconf automake pkg-config libsodium-dev bison flex libbison-dev
-  elif [ $(uname) == "Darwin" ]; then
+  elif [[ $(uname) == "Darwin" ]]; then
     echo "Mac"
     brew install cmake ninja libtool autoconf automake pkg-config libsodium bison
   else
