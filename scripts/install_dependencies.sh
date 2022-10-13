@@ -20,14 +20,17 @@ if [ ! -e $f1 ]; then
   touch $f1
 fi
 if [ ! -e $f2 ]; then
-
+  which_shell=$(echo $SHELL|awk -F '/' '{print $NF}')
+  rcname="~/.${which_shell}rc"
   echo "Install dependencies vcpkg..."
   echo "maybe you need do these yourself:"
+  echo "You can copy next few lines and exec them in your terminal ."
   echo "git clone https://github.com/microsoft/vcpkg"
   echo "cd vcpkg  && ./bootstrap-vcpkg.sh"
   echo "mv vcpkg /usr/local/bin/"
-  echo "set VCPKG_ROOT to <vcpkg path>"
-  echo "echo \"export VCPKG_ROOT=<vcpkg path >\" >> ~/.bashrc\""
+  echo "#set VCPKG_ROOT to \`pwd\`"
+  echo "echo \"export VCPKG_ROOT=\`pwd\`\" >> $rcname "
+  echo "source $rcname"
 
   vcpkg install pcapplusplus
 
