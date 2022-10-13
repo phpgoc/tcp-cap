@@ -2,6 +2,8 @@
 // Created by 杨殿擎 on 2022/9/30.
 //
 #include "Packet.h"
+#include "SSLLayer.h"
+#include "SSHLayer.h"
 #include "ServerConfig.h"
 #include "server_driver/Factory.h"
 #include "tcp_reassembly/DeleteQueue.h"
@@ -20,14 +22,22 @@ void handle(const string &b) {
     ptr += sizeof(pcpp::IPAddress);
     const uint8_t *data = (const uint8_t *) ptr;
     pcpp::RawPacket packet{data, *dataLen, *time, false};
+    pcpp::Packet parsedPacket(&packet);
+
+    //过滤ssl包
+    pcpp::SSLLayer *ssl_layer = parsedPacket.getLayerOfType<pcpp::SSLLayer>();
+    if(ssl_layer != nullptr){
+        return;
+    }
+    pcpp::SSHLayer *ssh_layer = parsedPacket.getLayerOfType<pcpp::SSHLayer>();
+//        cout << parsedPacket.toString() << endl;
+
     auto reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(*devIP);
     if (reassembly == tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().end()) {
         tcp_reassembly::Reassembly::getInstance()->add_2_tcp_reassembly_map(*devIP);
         reassembly = tcp_reassembly::Reassembly::getInstance()->getMTcpReassemblyMap().find(*devIP);
     }
     reassembly->second.reassemblePacket(&packet);
-    //    pcpp::Packet parsedPacket(&packet);
-    //    cout << parsedPacket.toString() << endl;
 }
 bool shouldStop = false;
 int main(int argc, char *argv[]) {
@@ -48,7 +58,7 @@ int main(int argc, char *argv[]) {
     };
     signal(SIGTERM, safe_quit_process);
     signal(SIGINT, safe_quit_process);
-    //todo 可以设定一定延迟再启动 delete_queue ,防止消息队列里堆积的消息满足delete_queue删除条件，直接被删除
+
     tcp_reassembly::delete_queue_thread(&shouldStop);
     server->pull_loop(handle, &shouldStop);
 

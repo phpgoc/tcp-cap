@@ -21,16 +21,14 @@ void tcp_reassembly::msgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamDat
             cookie->getMDeviceIp(), tcpData.getConnectionData().flowKey);
 
     if (data == nullptr) {
+        std::cout << "New connection: " << tcpData.getConnectionData().flowKey << std::endl;
+        Reassembly::getInstance()->incr_start_count();
         assembly_data_iter->second.insert(std::make_pair(tcpData.getConnectionData().flowKey, AssemblyData(tcpData.getConnectionData().endTime)));
-        cerr << "compatibility_tcp_max_time设置低了，tcp connention 心跳，消息队列阻塞长度，等因数共同决定。不影响正常逻辑" << endl;
-        cerr << "flow key:" << tcpData.getConnectionData().flowKey << endl;
         data = Reassembly::getInstance()->get_data_pointer_from_flow_map(cookie->getMDeviceIp(),
                                                                          tcpData.getConnectionData().flowKey);
-    }
-    if (data->getMEndTime().tv_sec < tcpData.getConnectionData().endTime.tv_sec) {
-        if (0 == data->getMEndTime().tv_sec) {
-            add_2_delete_queue(tcpData.getConnectionData().flowKey, tcpData.getConnectionData().endTime, cookie->getMDeviceIp());
-        }
+        add_2_delete_queue(tcpData.getConnectionData().flowKey, tcpData.getConnectionData().endTime, cookie->getMDeviceIp());
+    }else if (data->getMEndTime().tv_sec < tcpData.getConnectionData().endTime.tv_sec) {
+
         data->setMEndTime(tcpData.getConnectionData().endTime);
     }
     data->getMData().append((char *) tcpData.getData(), tcpData.getDataLength());
@@ -38,19 +36,8 @@ void tcp_reassembly::msgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamDat
 
 void tcp_reassembly::connectionStartCallback(const pcpp::ConnectionData &connectionData, void *userCookie) {
     // get a pointer to the connection manager
-    std::cout << "New connection: " << connectionData.flowKey << std::endl;
 
-    tcp_reassembly::ReassemblyDataInDevice *cookie = (tcp_reassembly::ReassemblyDataInDevice *) userCookie;
-    auto assembly_data_iter = Reassembly::getInstance()->getMFlowMap().find(cookie->getMDeviceIp());
-    if (assembly_data_iter == Reassembly::getInstance()->getMFlowMap().end()) {
-        cerr << "程序运行错误" << endl;
-        exit(1);
-    }
-    auto id2string_iter = assembly_data_iter->second.find(connectionData.flowKey);
-    if (id2string_iter == assembly_data_iter->second.end()) {
-        assembly_data_iter->second.insert(std::make_pair(connectionData.flowKey, AssemblyData({})));
-    }
-    Reassembly::getInstance()->incr_start_count();
+    // 什么都不做，所有判断移动到msgReadyCallback， data ==nullptr 上了
 }
 
 

@@ -76,11 +76,11 @@ void Config::set_config(char *str) {
 }
 
 void Config::debug() {
-    cout << "Server IP: " << m_server_ip << endl
+    cout << "Device name: " << mp_device->getName() << endl
+         << "Device IP: " << mp_device->getIPv4Address().toString() << endl
+         << "Server IP: " << m_server_ip << endl
          << "Server type: " << m_server_type << endl
          << "Server port: " << m_server_port << endl
-         << "Device name: " << mp_device->getName() << endl
-         << "Device IP: " << mp_device->getIPv4Address().toString() << endl
          << "Server IP: " << m_server_ip << endl
          << "Server type: " << m_server_type << endl
          << "message_queue: " << m_message_queue << endl;

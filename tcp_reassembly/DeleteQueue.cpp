@@ -40,6 +40,11 @@ void tcp_reassembly::delete_queue_thread(bool *stop) {
         // 不需要设置特别长，tcp链接及时被delete_queue清理，也不影响正常逻辑。
         //delete_queue_thread 和 connectionEndCallback 都可以处理message。
         constexpr int compatibility_tcp_max_time = 120;
+
+        // 先睡眠一段时间，再开始清理。
+        // 避免 当队列队列存在缓冲区时，插入到delete_queue里的数据被立刻清理。
+        pcpp::multiPlatformSleep(compatibility_tcp_max_time);
+
         while (!*stop) {
             if (!delete_queue.empty()) {
                 gettimeofday(&now, nullptr);
@@ -62,7 +67,7 @@ void tcp_reassembly::delete_queue_thread(bool *stop) {
                         delete_queue.pop();
                         if (Reassembly::find_in_flow_map_handle_earse_with_lock(map, p.getMFlowKey())) {
                             Reassembly::getInstance()->incr_error_count();
-                            //                            cout << "delete queue size: " << delete_queue.size() <<". ";
+//                            cout << "delete queue size: " << delete_queue.size() << ". ";
                         }
 
                     } else {
