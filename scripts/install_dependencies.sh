@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+# 如果更新了下边的内容，可以手动删除下两个lock文件，tmp文件夹自己会定时自动清理，本地开发可以把f1,f2改成非tmp目录
 f1=/tmp/8302baab259e9d9912ee7e2d6daf05db5829
 f2=/tmp/8302baab259e9d9912ee7e2d6daf05db5828
 if [ ! -e $f1 ]; then
@@ -14,7 +15,7 @@ if [ ! -e $f1 ]; then
     echo "Mac"
     brew install cmake ninja libtool autoconf automake pkg-config libsodium bison
   else
-    echo "Unknown"
+    echo "Unknown Operation System"
   fi
   touch $f1
 fi

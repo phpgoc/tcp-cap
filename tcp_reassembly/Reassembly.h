@@ -7,24 +7,24 @@
 #include "AssemblyData.h"
 #include "TcpReassembly.h"
 #include <iostream>
-
+#include <mutex>
 namespace tcp_reassembly {
 
 
     class Reassembly {
     public:
+        static std::mutex s_mutex_for_erase_flow_from_map;
+        static bool find_in_flow_map_handle_earse_with_lock(std::map<uint16_t, AssemblyData> *map, uint16_t flowKey);
         static Reassembly *getInstance();
-        static pcpp::TcpReassembly *getGlobalTcpReassembly();
         ~Reassembly();
 
         void add_2_tcp_reassembly_map(const pcpp::IPAddress &ip);
 
         std::map<pcpp::IPAddress, pcpp::TcpReassembly> &getMTcpReassemblyMap();
 
-        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &getMMutiFlowMap();
-        AssemblyData *get_data_pointer_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey);
+        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> &getMFlowMap();
+        AssemblyData *get_data_pointer_from_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey);
         std::map<uint16_t, AssemblyData> *getAssemblyDataByIP(pcpp::IPAddress);
-        bool earse_from_muti_flow_map(const pcpp::IPAddress &ip, uint16_t flowKey);
         inline void incr_start_count() {
             m_start_count++;
         }
@@ -44,20 +44,14 @@ namespace tcp_reassembly {
         int m_end_count;
         int m_error_count;
         std::map<pcpp::IPAddress, pcpp::TcpReassembly> m_tcp_reassembly_map;
-        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> m_muti_flow_map;
+        std::map<pcpp::IPAddress, std::map<uint16_t, AssemblyData>> m_flow_map;
     };
 
     class ReassemblyDataInDevice {
     public:
-        ReassemblyDataInDevice(Reassembly *global_reassembly, pcpp::IPAddress ip);
-
-        Reassembly *getMpGlobalReassembly() const;
-        void setMpGlobalReassembly(Reassembly *mpGlobalReassembly);
+        ReassemblyDataInDevice( pcpp::IPAddress ip);
         const pcpp::IPAddress &getMDeviceIp() const;
-        void setMDeviceIp(const pcpp::IPAddress &mDeviceIp);
-
     private:
-        Reassembly *mp_global_reassembly;
         pcpp::IPAddress m_device_ip;
     };
 }// namespace tcp_reassembly
