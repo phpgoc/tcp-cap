@@ -6,6 +6,6 @@ type = 'nats'
 # 消息队列的ip or host
 ip = 'localhost'
 # 消息队列的端口
-port = 4231
+port = 4222
 # 消息队列的队列名称
 queue = 'message'
