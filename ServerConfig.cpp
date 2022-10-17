@@ -8,10 +8,12 @@
 using namespace std;
 ServerConfig::ServerConfig() {
 }
-void ServerConfig::debug() {
-    cout << "server_type: " << m_server_type << endl;
-    cout << "server_ip: " << m_server_ip << endl;
-    cout << "server_port: " << m_server_port << endl;
+void ServerConfig::info() {
+    cout << "server_type: " << m_server_type << endl
+         << "server_ip: " << m_server_ip << endl
+         << "server_port: " << m_server_port << endl
+         << "message_queue: " << m_message_queue << endl
+         << "stream_name: " << m_stream_name << endl;
 }
 
 const string &ServerConfig::getMServerType() const {
@@ -41,6 +43,12 @@ void ServerConfig::set_config(char *string) {
     // server segment
     m_server_type = config["message_server"]["type"].value_or("");
     check_server_type_valid(m_config_file, m_server_type);
+    if (m_server_type == "nats") {
+        m_stream_name = config["nats"]["stream"].value_or("");
+        if (m_stream_name.empty()) {
+            m_stream_name = "default";
+        }
+    }
     m_server_ip = config["message_server"]["ip"].value_or("");
     check_server_ip_valid(m_config_file, &m_server_ip);
     m_server_port = config["message_server"]["port"].value_or(0);
@@ -48,3 +56,18 @@ void ServerConfig::set_config(char *string) {
     m_message_queue = config["message_server"]["queue"].value_or("");
     check_server_queue_valid(m_config_file, m_message_queue);
 }
+const string &ServerConfig::getMStreamName() const {
+    return m_stream_name;
+}
+
+server_driver::Base *get_message_server_instance( ServerConfig &config) {
+    if(config.getMServerType() == "redis") {
+        return new server_driver::Redis(config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
+    } else if(config.getMServerType() == "nats") {
+        return new server_driver::Nats(config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue(), config.getMStreamName());
+    }
+    cerr << "not support type: " << config.getMServerType() << endl;
+    cerr << "support type: redis, nats" << endl;
+    exit(1);
+}
+

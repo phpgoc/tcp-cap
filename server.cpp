@@ -5,7 +5,6 @@
 #include "SSLLayer.h"
 #include "SSHLayer.h"
 #include "ServerConfig.h"
-#include "server_driver/Factory.h"
 #include "tcp_reassembly/DeleteQueue.h"
 #include "tcp_reassembly/Reassembly.h"
 #include <iostream>
@@ -51,8 +50,8 @@ int main(int argc, char *argv[]) {
     } else {
         config.set_config(nullptr);
     }
-    config.debug();
-    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
+    config.info();
+    server_driver::Base *server = get_message_server_instance(config);
     auto safe_quit_process = [](int) {
         shouldStop = true;
     };

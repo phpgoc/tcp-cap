@@ -41,8 +41,6 @@ if [ ! -e $f2 ]; then
   # 非mac系统安装不成，可能是perl的问题，也可能是网络问题。
   vcpkg install cnats
 
-  vcpkg install libuv
-
   vcpkg install libmysql
 
   touch $f2

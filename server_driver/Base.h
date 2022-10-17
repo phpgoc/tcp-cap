@@ -5,7 +5,7 @@
 #ifndef VCPKG_1_BASE_H
 #define VCPKG_1_BASE_H
 #include <string>
-namespace server_drvier {
+namespace server_driver {
 
     class Base {
     public:
@@ -21,6 +21,6 @@ namespace server_drvier {
         }
         std::string message_queue;
     };
-}// namespace server_drvier
+}// namespace server_driver
 
 #endif//VCPKG_1_BASE_H

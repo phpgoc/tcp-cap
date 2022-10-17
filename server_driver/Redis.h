@@ -6,7 +6,7 @@
 #define VCPKG_1_REDIS_H
 #include "Base.h"
 #include <sw/redis++/redis++.h>
-namespace server_drvier {
+namespace server_driver {
 
 
     class Redis : public Base {
@@ -20,6 +20,6 @@ namespace server_drvier {
         sw::redis::Redis *mp_client = nullptr;
     };
 
-}// namespace server_drvier
+}// namespace server_driver
 
 #endif//VCPKG_1_REDIS_H

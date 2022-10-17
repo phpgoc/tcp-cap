@@ -12,6 +12,11 @@ port = 4222
 # 消息队列的队列名称
 queue = 'message'
 
+#如果message_server是type = nats 才需要配置
+[nats]
+#default 如果没有会自动创建，其他没有会报错
+stream = "default"
+
 #设备名称和ip输入有一个就可以
 #每个网卡一个配置文件
 [device]

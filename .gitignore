@@ -62,3 +62,4 @@ _deps
 !/Makefile
 /Release/
 /Debug/
+/.fleet/settings.json

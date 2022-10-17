@@ -1,5 +1,4 @@
 #include "Config.h"
-#include "server_driver/Factory.h"
 #include <iostream>
 #include <unistd.h>
 using namespace std;
@@ -11,7 +10,7 @@ Config config;
 
 static void on_packet_arrives(pcpp::RawPacket *packet, pcpp::PcapLiveDevice *dev, void *cookie) {
     // extract the stats object form the cookie
-    server_drvier::Base *server = (server_drvier::Base *) cookie;
+    server_driver::Base *server = (server_driver::Base *) cookie;
     // parsed the raw packet
     pcpp::Packet parsedPacket(packet);
     cout << parsedPacket.toString() << endl;
@@ -40,8 +39,8 @@ int main(int argc, char *argv[]) {
     } else {
         config.set_config(nullptr);
     }
-    config.debug();
-    server_drvier::Base *server = server_drvier::get_server_instance(config.getMServerType(), config.getMServerIp(), config.getMServerPort(), config.getMMessageQueue());
+    config.info();
+    server_driver::Base *server = get_message_server_instance(config);
     pcpp::OrFilter or_filter;
     vector<void *> filterPointersForDeletion;
     for (auto i : config.getMDbs()) {
