@@ -13,7 +13,6 @@ static void (*handle_function)(const std::string &);
 static void onMsg(natsConnection *nc, natsSubscription *sub, natsMsg *msg, void *closure) {
     handle_function(string(natsMsg_GetData(msg), natsMsg_GetDataLength(msg)));
     natsMsg_AckSync(msg, nullptr, 0);
-
 }
 static void asyncCb(natsConnection *nc, natsSubscription *sub, natsStatus err, void *closure) {
     printf("Async error: %u - %s\n", err, natsStatus_GetText(err));
@@ -29,16 +28,15 @@ server_driver::Nats::Nats(const std::string &ip, int port, const std::string &me
     serverUrls[0] = (char *) url.c_str();
     natsOptions_Create(&mp_opts);
     natsOptions_SetMaxReconnect(mp_opts, -1);
-    natsOptions_SetReconnectWait(mp_opts, 10);
-    m_status = natsOptions_SetErrorHandler(mp_opts, asyncCb, NULL);
+    natsOptions_SetReconnectWait(mp_opts, 100);
+    m_status = natsOptions_SetErrorHandler(mp_opts, asyncCb, nullptr);
+
     m_status = natsOptions_SetServers(mp_opts, (const char **) serverUrls, MAX_SERVERS);
     if (m_status != NATS_OK) {
         nats_PrintLastErrorStack(stderr);
         exit(1);
     }
-    m_status = natsOptions_SetReconnectWait(mp_opts, 100);
-    // Instruct the library to block the connect call for that
-    // long until it can get a connection or fails.
+
     if (m_status == NATS_OK) {
         m_status = natsOptions_SetRetryOnFailedConnect(mp_opts, true, nullptr, nullptr);
     }
@@ -57,9 +55,9 @@ server_driver::Nats::Nats(const std::string &ip, int port, const std::string &me
     }
 
 
-    m_status = js_GetStreamInfo(&mp_si, mp_js, m_stream_name.c_str(), NULL, nullptr);
+    m_status = js_GetStreamInfo(&mp_si, mp_js, m_stream_name.c_str(), nullptr, nullptr);
     if (m_status == NATS_NOT_FOUND) {
-        cout << "stream not found, create stream:" << m_stream_name<< endl;
+        cout << "stream not found, create stream:" << m_stream_name << endl;
         if (m_stream_name != "default") {
             cerr << "Stream " << m_stream_name << " does not exist" << endl;
             cerr << "You can set it to default for test" << endl;
@@ -67,57 +65,49 @@ server_driver::Nats::Nats(const std::string &ip, int port, const std::string &me
         }
         jsStreamConfig cfg;
 
-        // Initialize the configuration structure.
         jsStreamConfig_Init(&cfg);
         cfg.Name = m_stream_name.c_str();
-        // Set the subject
         cfg.Subjects = (const char *[1]){this->getMessageQueue().c_str()};
         cfg.SubjectsLen = 1;
-        // Make it a memory mp_stream_name.
-        cfg.Retention = js_WorkQueuePolicy;
-//        cfg.DenyDelete = false;
+        cfg.Retention = js_WorkQueuePolicy;//收到消费端ack删除消息
         cfg.Storage = js_MemoryStorage;
-        // Add the mp_stream_name,
-        m_status = js_AddStream(&mp_si, mp_js, &cfg, NULL, nullptr);
+        m_status = js_AddStream(&mp_si, mp_js, &cfg, nullptr, nullptr);
     }
 }
 
 server_driver::Nats::~Nats() {
+
+    natsConnection_Destroy(m_conn);
+    nats_Close();
     if (mp_opts) {
         natsOptions_Destroy(mp_opts);
     }
-    natsConnection_Destroy(m_conn);
-    nats_Close();
 }
 
 void server_driver::Nats::push(const std::string &b) {
 
-    m_status = js_PublishAsync( mp_js, this->getMessageQueue().c_str(), (const void *) b.data(), b.size(), nullptr);
-    cout << "nats push status: " << natsStatus_GetText(m_status) << endl;
-    //    natsConnection_Publish(m_conn, this->getMessageQueue().c_str(), (const void *) b.c_str(), b.size());
+    m_status = js_PublishAsync(mp_js, this->getMessageQueue().c_str(), (const void *) b.data(), b.size(), nullptr);
+    if (m_status != NATS_OK) {
+        nats_PrintLastErrorStack(stderr);
+    }
 }
 
 
 void server_driver::Nats::pull_loop(void (*handle)(const std::string &), bool *stop) {
+    handle_function = handle;
+
     natsSubscription *sub;
     jsSubOptions so;
     m_status = jsSubOptions_Init(&so);
-    if (m_status == NATS_OK) {
-        m_status = jsSubOptions_Init(&so);
-    }
-    //    if (m_status == NATS_OK) {
-    //        so.Stream = m_stream_name.c_str();
-    //        //        so.Consumer = durable;
-    //        so.Config.FlowControl = false;
-    //        so.Config.Heartbeat = (int64_t) 1E9;
-    //    }
-    handle_function = handle;
 
-
+//    so.Config.FlowControl = true;       //开启流控
+//    so.Config.Heartbeat = (int64_t) 1E9;//参数是纳秒 ,1秒拉一次
+    //todo 未来可能会改拉取模式，目前的方式流量不可控。很快，但不稳，OnMessage如果完全异步，即使client发送的消息对，server组装也可能会丢消息（加锁）。
     m_status = js_Subscribe(&sub, mp_js, this->getMessageQueue().c_str(), onMsg, nullptr, &m_jsOpts, &so, nullptr);
 
-    if (m_status == NATS_OK)
+    if (m_status == NATS_OK){
         m_status = natsSubscription_SetPendingLimits(sub, -1, -1);
+    }
     while (!*stop) {
         pcpp::multiPlatformSleep(1);
     }
