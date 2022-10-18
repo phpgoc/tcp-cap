@@ -28,6 +28,8 @@ server_driver::Nats::Nats(const std::string &ip, int port, const std::string &me
     memset(serverUrls, 0, sizeof(serverUrls));
     serverUrls[0] = (char *) url.c_str();
     natsOptions_Create(&mp_opts);
+    natsOptions_SetMaxReconnect(mp_opts, -1);
+    natsOptions_SetReconnectWait(mp_opts, 10);
     m_status = natsOptions_SetErrorHandler(mp_opts, asyncCb, NULL);
     m_status = natsOptions_SetServers(mp_opts, (const char **) serverUrls, MAX_SERVERS);
     if (m_status != NATS_OK) {
