@@ -1,5 +1,7 @@
 # 编译
 
+目前无法在任何非mac环境编译，即使是在mac也需要修改 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  成 pkg-config --cflags --libs PcapPlusPlus
+vcpkg 没有整合好 PcapPlusPlus
 
 # 功能
  
@@ -28,3 +30,14 @@ $ cd <server path> && ./server
 $ cd <server path> && ./server <server_config.toml path>
 ```
 
+- 简单实用
+```bash
+
+make debug #第一次会需要很长时间，而且有pcapplusplus的bug，需要自行修改一下 
+make config
+cd Debug
+# modify config.toml
+# modify server_config.toml
+./client
+./server
+```
